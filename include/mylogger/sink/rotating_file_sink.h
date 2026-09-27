@@ -11,7 +11,7 @@ public:
                             std::size_t max_files);
 
 protected:
-  void writeToFile(const std::string &line) override;
+  void writeToFile(std::string const &line) override;
 
 private:
   std::size_t max_size_;

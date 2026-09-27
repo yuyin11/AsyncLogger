@@ -9,9 +9,11 @@ namespace mylogger {
 inline std::unique_ptr<Sink> makeConsoleSink() {
   return std::make_unique<ConsoleSink>(std::make_unique<PatternFormatter>());
 }
+
 inline std::unique_ptr<Sink> makeFileSink(std::string path) {
   return std::make_unique<FileSink>(std::make_unique<PatternFormatter>(), path);
 }
+
 inline std::unique_ptr<Sink> makeRotatingFileSink(std::string path,
                                                   std::size_t max_size,
                                                   std::size_t max_files) {

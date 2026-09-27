@@ -23,30 +23,30 @@ public:
     return instance;
   }
 
-  Logger(const Logger &) = delete;
-  Logger &operator=(const Logger &) = delete;
+  Logger(Logger const &) = delete;
+  Logger &operator=(Logger const &) = delete;
   Logger(Logger &&) = delete;
   Logger &operator=(Logger &&) = delete;
 
   void addSink(std::unique_ptr<Sink> sink);
-  void setLevel(Level level);
+  inline void setLevel(Level level) { level_ = level; }
   template <typename... Args>
   void log(Level level, char const *file, int line,
            fmt::format_string<Args...> format_str, Args &&...args);
-  void flush();
   void stop();
   void reset();
 
 private:
   void backendLoop();
+  void flush();
 
-  std::queue<LogRecord> buffer_;
   std::thread worker_;
   std::mutex mtx_;
   std::mutex sinks_mtx_;
+
+  std::queue<LogRecord> buffer_;
   std::condition_variable cv_;
   bool running_ = true;
-
   std::vector<std::unique_ptr<Sink>> sinks_;
   std::atomic<Level> level_ = Level::TRACE;
 };

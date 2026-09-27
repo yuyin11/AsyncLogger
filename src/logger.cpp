@@ -39,8 +39,6 @@ void mylogger::Logger::addSink(std::unique_ptr<Sink> sink) {
   sinks_.push_back(std::move(sink));
 }
 
-void mylogger::Logger::setLevel(Level level) { level_ = level; }
-
 void mylogger::Logger::stop() {
   {
     std::unique_lock<std::mutex> lock(mtx_);
@@ -61,9 +59,14 @@ void mylogger::Logger::flush() {
 }
 
 void mylogger::Logger::reset() {
-  if (worker_.joinable())
-    return;
-  running_ = true;
-  sinks_.clear();
+  stop();
+  {
+    std::lock_guard<std::mutex> lock(sinks_mtx_);
+    sinks_.clear();
+  }
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    running_ = true;
+  }
   worker_ = std::thread(&Logger::backendLoop, this);
 }
