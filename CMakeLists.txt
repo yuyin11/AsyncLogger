@@ -40,6 +40,16 @@ target_link_libraries(test_logger
     mylogger
 )
 
+add_executable(bench_logger
+  ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/bench_logger.cpp
+)
+target_link_libraries(bench_logger
+  PRIVATE
+    mylogger
+    fmt::fmt
+)
+target_compile_options(bench_logger PRIVATE -O2)
+
 include(Catch)
 
 catch_discover_tests(test_logger)
