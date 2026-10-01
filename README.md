@@ -23,6 +23,7 @@ Single global queue + single worker thread + one mutex
 |2       |1658056        |0.26       |12.56      |24.27   |
 |4       |2060456        |0.71       |15.06      |27.72   |
 |8       |2129903        |1.25       |24.59      |41.38   |
+
 Observation: Throughtput plateaus around 2.1M/s. P50 and P99 grow with thread count -- classic lock contention.
 
 ## Build
