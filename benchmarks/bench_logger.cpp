@@ -10,7 +10,7 @@
 #include <vector>
 
 #define LOG_INFO(...)                                                          \
-  logger.log(mylogger::Level::INFO, __FILE__, __LINE__, __VA_ARGS__);
+  logger.log(mylogger::Level::INFO, __FILE__, __LINE__, __VA_ARGS__)
 
 // 空Sink 和 Formatter
 class NullSink : public mylogger::Sink {
@@ -22,7 +22,7 @@ public:
 };
 
 class NullFormatter : public mylogger::Formatter {
-  std::string format(mylogger::LogRecord const &) { return ""; }
+  std::string format(mylogger::LogRecord const &) override { return ""; }
 };
 
 struct BenchResult {
@@ -65,8 +65,8 @@ BenchResult runBench(int numThreads, int msgsPerThread) {
   start.store(true, std::memory_order_release);
   for (auto &t : threads)
     t.join();
-  auto end = std::chrono::steady_clock::now();
   logger.stop();
+  auto end = std::chrono::steady_clock::now();
 
   // 将结果放在一个vector中；排序
   std::vector<double> all;
