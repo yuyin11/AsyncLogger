@@ -37,18 +37,33 @@ public:
   void reset();
 
 private:
-  void backendLoop();
-  void flush();
+  static size_t constexpr kLocalBufferSize = 8192;
+  struct TLBuffer {
+    std::vector<LogRecord> records;
+    Logger *owner = nullptr;
+
+    ~TLBuffer() {
+      if (owner && !records.empty()) {
+        owner->flushBatch(records);
+      }
+    }
+  };
 
   std::thread worker_;
   std::mutex mtx_;
   std::mutex sinks_mtx_;
-
-  std::queue<LogRecord> buffer_;
   std::condition_variable cv_;
+
+  static thread_local TLBuffer tls_;
+  std::queue<LogRecord> buffer_;
   bool running_ = true;
   std::vector<std::unique_ptr<Sink>> sinks_;
   std::atomic<Level> level_ = Level::TRACE;
+
+  void backendLoop();
+  void flush();
+  void push(LogRecord rec);
+  void flushBatch(std::vector<LogRecord> &batch);
 };
 
 template <typename... Args>
@@ -58,10 +73,7 @@ void Logger::log(Level level, char const *file, int line,
     return;
   LogRecord rec{level, std::chrono::system_clock::now(), file, line,
                 fmt::format(format_str, std::forward<Args>(args)...)};
-
-  std::unique_lock<std::mutex> lock(mtx_);
-  buffer_.push(rec);
-  cv_.notify_one();
+  push(rec);
 }
 
 } // namespace mylogger
