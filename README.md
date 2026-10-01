@@ -50,13 +50,13 @@ Single global queue + single worker thread + one mutex
 Observation: Throughtput plateaus around 2.1M/s. P50 and P99 grow with thread count -- classic lock contention.
 
 ### v1.1.0: Thread-Local Buffer + Batch Swap in Consumer + kLocalBufferSize = 8192
-Each producer thread buffers records locally and flushes a batch under lock.
-Consumer swaps out the entire queue under lock, processes outside the lock. 
+Each producer thread buffers records locally and flushes a batch under lock.  
+Consumer swaps out the entire queue under lock, processes outside the lock.  
 8192 is the sweet spot. Beyond it, cache misses from the enlarged local buffer
 and longer lock hold time during flush outweigh the reduced lock frequency.
 |Threads | Throughput/s  |  P50(us)  |  P99(us)  |P999(us)|
 |--------|---------------|-----------|-----------|--------|
 |8       |6607640        |0.19       |0.86       |1.51    |
 
-Throughput at 8T: 2.1M -> 6.6M (+214%)
+Throughput at 8T: 2.1M -> 6.6M (+214%)  
 P99 at 8T: 24.59us -> 0.86us (-96%)
